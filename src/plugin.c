@@ -19,9 +19,7 @@
   USA.
 ***/
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <stdio.h>
 #include <assert.h>
@@ -32,6 +30,10 @@
 #include <limits.h>
 
 #include <gtk/gtk.h>
+
+#ifdef NEEDS_GLIB
+ #include <glib/glib.h>
+#endif
 
 #ifdef HAVE_XMMS
  #include <plugin.h>
@@ -47,10 +49,18 @@
 
 #include <pulse/pulseaudio.h>
 
+#include "inc.h"
+
 static pa_context *context = NULL;
 static pa_stream *stream = NULL;
 static pa_threaded_mainloop *mainloop = NULL;
 
+struct xmmsin {
+    AFormat xmms_format;
+    unsigned int rate;
+    unsigned int channels;
+};
+static struct xmmsin inputf;
 static pa_cvolume volume;
 static int volume_valid = 0;
 
@@ -474,24 +484,47 @@ fail:
 }
 
 static void pulse_write(void* ptr, int length) {
+    EffectPlugin *ep = NULL;
+    int old_rate = inputf.rate, new_rate = inputf.rate;
+    int old_nchn = inputf.channels, new_nchn = inputf.channels;
+    AFormat old_fmt = inputf.xmms_format, new_fmt = inputf.xmms_format;
 
-/*     g_message("write"); */
-    
     CHECK_CONNECTED();
 
     pa_threaded_mainloop_lock(mainloop);
+
+    if (effects_enabled() && (ep = get_current_effect_plugin()) && ep->query_format) {
+        ep->query_format(&new_fmt, &new_rate, &new_nchn);
+        if (new_fmt != old_fmt || new_rate != old_rate || new_nchn != old_nchn) {
+            pa_threaded_mainloop_unlock(mainloop);
+
+            if (!pulse_reopen(new_fmt, new_rate, new_nchn)) {
+                g_warning("Failed to reopen pulse for format change!");
+                pulse_close();
+                return;
+            }
+
+            pa_threaded_mainloop_lock(mainloop);
+            inputf.rate = new_rate;
+            inputf.channels = new_nchn;
+            inputf.xmms_format = new_fmt;
+        }
+    }
+
+    if (ep)
+        length = ep->mod_samples(&ptr, length, inputf.xmms_format, inputf.rate, inputf.channels);
+
     CHECK_DEAD_GOTO(fail, 1);
 
-    if (pa_stream_write(stream, ptr, length, NULL, PA_SEEK_RELATIVE, 0) < 0) {
+    if (pa_stream_write(stream, ptr, length, NULL, 0, PA_SEEK_RELATIVE) < 0) {
         g_warning("pa_stream_write() failed: %s", pa_strerror(pa_context_errno(context)));
         goto fail;
     }
-    
+
     do_trigger = 0;
     written += length;
 
 fail:
-    
     pa_threaded_mainloop_unlock(mainloop);
 }
 
@@ -555,27 +588,36 @@ static void pulse_close(void) {
     volume_time_event = NULL;
 }
 
+static enum pa_sample_format format_for_aformat(AFormat fmt) {
+    switch (fmt) {
+        case FMT_U8:
+            return PA_SAMPLE_U8;
+        case FMT_S16_LE:
+            return PA_SAMPLE_S16LE;
+        case FMT_S16_BE:
+            return PA_SAMPLE_S16BE;
+        case FMT_S16_NE:
+            return PA_SAMPLE_S16NE;
+        default:
+            g_warning("Invalid sample... %d\n", fmt);
+            return PA_SAMPLE_INVALID;
+    }
+}
+
 static int pulse_open(AFormat fmt, int rate, int nch) {
     pa_sample_spec ss;
     pa_operation *o = NULL;
     int success;
 
-/*     g_message("open"); */
+     // g_message("open");
 
     g_assert(!mainloop);
     g_assert(!context);
     g_assert(!stream);
     g_assert(!connected);
     
-    if (fmt == FMT_U8)
-        ss.format = PA_SAMPLE_U8;
-    else if (fmt == FMT_S16_LE)
-        ss.format = PA_SAMPLE_S16LE;
-    else if (fmt == FMT_S16_BE)
-        ss.format = PA_SAMPLE_S16BE;
-    else if (fmt == FMT_S16_NE)
-        ss.format = PA_SAMPLE_S16NE;
-    else
+    ss.format = format_for_aformat(fmt);
+    if (ss.format == PA_SAMPLE_INVALID)
         return FALSE;
 
     ss.rate = rate;
@@ -694,7 +736,11 @@ static int pulse_open(AFormat fmt, int rate, int nch) {
     volume_time_event = NULL;
     
     pa_threaded_mainloop_unlock(mainloop);
-    
+
+    inputf.channels = nch;
+    inputf.xmms_format = fmt;
+    inputf.rate = rate;
+
     return TRUE;
 
 unlock_and_fail:
@@ -709,6 +755,16 @@ fail:
     pulse_close();
     
     return FALSE;
+}
+
+static int pulse_reopen(AFormat new_fmt, int new_rate, int new_nch) {
+    int last_position = written;
+    pulse_close();
+    if (!pulse_open(new_fmt, new_rate, new_nch)) {
+        return FALSE;
+    }
+    written = last_position;
+    return TRUE;
 }
 
 static void pulse_init(void) {
