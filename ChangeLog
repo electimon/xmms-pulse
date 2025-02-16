@@ -1,0 +1,211 @@
+2007-10-30 17:19  lennart
+
+	* Makefile.am, configure.ac, doc/README.html.in: prepare new
+	  release
+
+2006-09-03 22:52  lennart
+
+	* configure.ac, doc/README.html.in, src/Makefile.am, src/plugin.c:
+	  beep media player support (patch from Mario Izquierdo)
+
+2006-07-21 16:55  lennart
+
+	* doc/README.html.in: last minute fix
+
+2006-07-21 16:54  lennart
+
+	* configure.ac, doc/README.html.in: prepare release 0.9.3
+
+2006-07-14 20:20  lennart
+
+	* src/plugin.c: fix a memory leak
+
+2006-07-08 20:00  lennart
+
+	* doc/README.html.in: fix url
+
+2006-07-08 19:57  lennart
+
+	* doc/README.html.in: prepare 0.9.2
+
+2006-06-21 14:31  lennart
+
+	* src/plugin.c: include config.h properly
+
+2006-06-20 23:59  lennart
+
+	* configure.ac: bump require pa version
+
+2006-06-20 19:15  lennart
+
+	* doc/Makefile.am: ladt missing pieces of s/polyp/pulse/
+
+2006-06-20 19:13  lennart
+
+	* doc/README.html.in: s/polyp/pulse/ in README.html
+
+2006-06-20 19:07  lennart
+
+	* Makefile.am, bootstrap.sh, configure.ac, doc/style.css,
+	  src/Makefile.am, src/plugin.c: s/polyp/PULSE/g
+
+2006-05-30 13:48  lennart
+
+	* configure.ac: fix build script to require polyplib instead of
+	  polyplib-simple
+
+2006-05-27 12:13  lennart
+
+	* Makefile.am, doc/README.html.in: prep 0.9.0
+
+2006-05-20 16:34  lennart
+
+	* src/plugin.c: convert song name from locale to UTF8 before
+	  passing it to the server
+
+2006-05-20 15:03  lennart
+
+	* bootstrap.sh: remove double libtoolize call
+
+2006-05-20 01:06  lennart
+
+	* Makefile.am, doc/README.html.in, doc/style.css: doc update for
+	  0.9.0
+
+2006-05-20 00:55  lennart
+
+	* bootstrap.sh, configure.ac, src/Makefile.am, src/plugin.c: update
+	  for polypaudio 0.9
+
+2006-04-07 21:24  ossman
+
+	* src/plugin.c: Update to new API.
+
+2006-04-07 21:24  ossman
+
+	* configure.ac: Avoid funky magic in the configure script.
+
+2004-12-17 16:16  lennart
+
+	* configure.ac: update
+
+2004-11-21 22:40  lennart
+
+	* doc/README.html.in: readme update
+
+2004-11-21 18:46  lennart
+
+	* configure.ac: bump version numbers
+
+2004-10-27 22:46  lennart
+
+	* configure.ac, doc, doc/README.html.in: prepare next release
+
+2004-10-27 14:14  lennart
+
+	* src/plugin.c: fix latency calculation
+
+2004-10-27 01:13  lennart
+
+	* src/plugin.c: make use of latency interpolation
+
+2004-10-24 00:47  lennart
+
+	* src/plugin.c: use user volume API
+
+2004-10-01 12:47  lennart
+
+	* configure.ac, src/plugin.c: compat with polypaudio 0.6
+
+2004-09-20 21:59  lennart
+
+	* doc/README.html.in: prep for dist
+
+2004-09-17 23:45  lennart
+
+	* src/plugin.c: remove latency hack
+
+2004-09-16 23:48  lennart
+
+	* src/plugin.c: clean up volume setting
+
+2004-09-15 19:17  lennart
+
+	* configure.ac, src/plugin.c: update to new polypaudio 0.5 API
+
+2004-09-12 19:39  lennart
+
+	* configure.ac: configure script update
+
+2004-09-12 13:17  lennart
+
+	* configure.ac, src/plugin.c: update to polypaudio 0.5
+	  keep volume if not connected to polypaudio
+
+2004-09-07 23:58  lennart
+
+	* configure.ac, doc/README.html.in, src: upgrade to polypaudio 0.4
+
+2004-08-27 19:00  lennart
+
+	* ., Makefile.am: build updates
+
+2004-08-27 18:33  lennart
+
+	* LICENSE: add license
+
+2004-08-27 18:29  lennart
+
+	* doc/README.html.in: documentation update
+
+2004-08-27 16:17  lennart
+
+	* doc/README.html.in: documentation update
+
+2004-08-27 16:11  lennart
+
+	* configure.ac: make libtool shut up
+
+2004-08-27 16:10  lennart
+
+	* ., configure.ac: make autoscan shut up
+
+2004-08-27 16:08  lennart
+
+	* ., configure.ac, doc, src/Makefile.am: build system update
+
+2004-08-27 16:02  lennart
+
+	* acinclude.m4, src/plugin.c: make it work
+
+2004-08-27 01:30  lennart
+
+	* src/plugin.c: make it work
+	  that is: more or less
+
+2004-08-26 16:07  lennart
+
+	* ., Makefile.am, bootstrap.sh, configure.ac, doc, doc/Makefile.am,
+	  doc/README.html.in, doc/style.css, src, src/Makefile.am,
+	  src/plugin.c: make it compile - nothing more
+
+2004-08-26 15:32  lennart
+
+	* src/audio.c, src/plugin.c, src/thread.c: rename some stuff
+
+2004-08-25 23:42  lennart
+
+	* src/thread.c: implemented completely, testing required
+
+2004-08-23 23:13  lennart
+
+	* src/thread.c: add some more unfinished stuff
+
+2004-08-23 18:51  lennart
+
+	* src, src/audio.c: initial commit
+
+2004-08-23 18:50  lennart
+
+	* .: Create trunk directory
+
