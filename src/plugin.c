@@ -537,19 +537,8 @@ static void drain(void) {
     pa_threaded_mainloop_lock(mainloop);
     CHECK_DEAD_GOTO(fail, 0);
 
-    if (!(o = pa_stream_drain(stream, stream_success_cb, &success))) {
-        g_warning("pa_stream_drain() failed: %s", pa_strerror(pa_context_errno(context)));
-        goto fail;
-    }
-    
-    while (pa_operation_get_state(o) != PA_OPERATION_DONE) {
-        CHECK_DEAD_GOTO(fail, 1);
-        pa_threaded_mainloop_wait(mainloop);
-    }
-
-    if (!success)
-        g_warning("pa_stream_drain() failed: %s", pa_strerror(pa_context_errno(context)));
-    
+    o = pa_stream_drain(stream, stream_success_cb, &success);
+    pa_msleep(20);
 fail:
     if (o)
         pa_operation_unref(o);
